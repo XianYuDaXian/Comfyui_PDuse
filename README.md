@@ -18,7 +18,7 @@
 在ComfyUI画布双击, 在搜索框输入"PD"。
 
 ![](Aspose.Words.14473600-fb86-46bf-b04a-a30ce5ab0be9.001.png)
-![PD_节点汇总]（https://github.com/7BEII/Comfyui_PDuse/blob/f48458d80e45e3a36bac2e368197fc94be6f9eec/workflow/PD_%E8%8A%82%E7%82%B9%E6%B1%87%E6%80%BB.png）
+![PD_节点汇总](https://github.com/7BEII/Comfyui_PDuse/blob/f48458d80e45e3a36bac2e368197fc94be6f9eec/workflow/PD_%E8%8A%82%E7%82%B9%E6%B1%87%E6%80%BB.png)
 
 <a name="heading_4"></a>1.4 **更新说明：**
 
