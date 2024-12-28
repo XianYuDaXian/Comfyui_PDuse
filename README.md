@@ -30,6 +30,7 @@
 - PD\_groupfontsize:主要用来修改json文件里面编组字体大小，
 - font\_size 设置：主要是要统一设置的字体大小。
 - tile：保留那个不需要改变字体大小的组。
+- https://github.com/7BEII/Comfyui_PDuse/blob/f011c9c848b6a3aed06a17b29d87ba898ad74e2f/img/Aspose.Words.14473600-fb86-46bf-b04a-a30ce5ab0be9.002.png
 
   ![](Aspose.Words.14473600-fb86-46bf-b04a-a30ce5ab0be9.002.png)
 
