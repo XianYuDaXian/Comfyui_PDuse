@@ -1,7 +1,44 @@
 {
-  "last_node_id": 28,
-  "last_link_id": 12,
+  "last_node_id": 59,
+  "last_link_id": 56,
   "nodes": [
+    {
+      "id": 15,
+      "type": "PD_node",
+      "pos": [
+        450,
+        -1800
+      ],
+      "size": [
+        640.7523803710938,
+        154
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Processed_Files",
+          "type": "STRING",
+          "links": [
+            10
+          ],
+          "slot_index": 0,
+          "label": "Processed_Files"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_node"
+      },
+      "widgets_values": [
+        "A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\input",
+        "A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\output\\json",
+        "RF_毛绒风格(建筑inpaint)_V2",
+        "RF_毛绒风格(建筑inpaint)_V2",
+        60
+      ]
+    },
     {
       "id": 17,
       "type": "easy showAnything",
@@ -14,7 +51,7 @@
         251.4248809814453
       ],
       "flags": {},
-      "order": 8,
+      "order": 14,
       "mode": 4,
       "inputs": [
         {
@@ -37,7 +74,7 @@
         "Node name for S&R": "easy showAnything"
       },
       "widgets_values": [
-        "修改完成！已处理的文件保存在目录：A:\\AICG\\批处理\\s\n文件列表：A:\\AICG\\批处理\\s\\修改文件.json_1.json, A:\\AICG\\批处理\\s\\修改文件.json_2.json"
+        "修改完成！已处理的文件保存在目录：A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\output\\json\n文件列表：A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\output\\json\\RF_毛绒风格(建筑inpaint)_V2.json_1.json"
       ]
     },
     {
@@ -52,7 +89,7 @@
         162.11875915527344
       ],
       "flags": {},
-      "order": 0,
+      "order": 1,
       "mode": 4,
       "inputs": [],
       "outputs": [],
@@ -61,43 +98,6 @@
         "\nPD_groupfontsize:主要用来修改json文件里面编组字体大小，\nfont_size 设置：主要是要统一设置的字体大小。\ntile：保留那个不需要改变字体大小的组。"
       ],
       "color": "#c09430"
-    },
-    {
-      "id": 15,
-      "type": "PD_node",
-      "pos": [
-        450,
-        -1800
-      ],
-      "size": [
-        640.7523803710938,
-        154
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 4,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "Processed_Files",
-          "type": "STRING",
-          "links": [
-            10
-          ],
-          "slot_index": 0,
-          "label": "Processed_Files"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PD_node"
-      },
-      "widgets_values": [
-        "A:\\AICG\\批处理\\json",
-        "A:\\AICG\\批处理\\s",
-        "修改文件",
-        "TL_一键白底_V",
-        70
-      ]
     },
     {
       "id": 21,
@@ -129,8 +129,8 @@
         "Node name for S&R": "BatchJsonIncremental"
       },
       "widgets_values": [
-        "A:\\AICG\\批处理\\json",
-        "A:\\AICG\\批处理\\s",
+        "A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\input",
+        "A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\output\\json",
         0,
         0,
         20,
@@ -149,7 +149,7 @@
         206.1938934326172
       ],
       "flags": {},
-      "order": 9,
+      "order": 15,
       "mode": 4,
       "inputs": [
         {
@@ -198,6 +198,41 @@
       "color": "#c09430"
     },
     {
+      "id": 24,
+      "type": "PD_RemoveColorWords",
+      "pos": [
+        1898,
+        -1790
+      ],
+      "size": [
+        674.57666015625,
+        158.33114624023438
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Result",
+          "type": "STRING",
+          "links": [
+            12
+          ],
+          "slot_index": 0,
+          "label": "Result"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_RemoveColorWords"
+      },
+      "widgets_values": [
+        "A:\\conda-qibei\\ComfyUI\\custom_nodes\\Comfyui_PDuse\\input",
+        "1",
+        "1 3"
+      ]
+    },
+    {
       "id": 25,
       "type": "easy showAnything",
       "pos": [
@@ -209,8 +244,8 @@
         206.1938934326172
       ],
       "flags": {},
-      "order": 10,
-      "mode": 0,
+      "order": 16,
+      "mode": 4,
       "inputs": [
         {
           "name": "anything",
@@ -236,6 +271,28 @@
       ]
     },
     {
+      "id": 26,
+      "type": "Note",
+      "pos": [
+        1908,
+        -1313
+      ],
+      "size": [
+        676.260986328125,
+        204.2787322998047
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "\n\"directory_path:  # 文件夹路径\n\"words_to_remove: # 要删除的单词\n"
+      ],
+      "color": "#c09430"
+    },
+    {
       "id": 27,
       "type": "Fast Groups Bypasser (rgthree)",
       "pos": [
@@ -244,10 +301,10 @@
       ],
       "size": [
         1042.1607666015625,
-        154
+        178
       ],
       "flags": {},
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -268,68 +325,11 @@
       }
     },
     {
-      "id": 24,
-      "type": "PD_RemoveColorWords",
-      "pos": [
-        1898,
-        -1790
-      ],
-      "size": [
-        674.57666015625,
-        158.33114624023438
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "Result",
-          "type": "STRING",
-          "links": [
-            12
-          ],
-          "slot_index": 0,
-          "label": "Result"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PD_RemoveColorWords"
-      },
-      "widgets_values": [
-        "A:\\1_area\\area_模型训练\\训练集_训练\\#真人\\xiaomei_v1\\10_xiaomeitou",
-        "1",
-        "1 3"
-      ]
-    },
-    {
-      "id": 26,
-      "type": "Note",
-      "pos": [
-        1908,
-        -1313
-      ],
-      "size": [
-        676.260986328125,
-        204.2787322998047
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "\n\"directory_path:  # 文件夹路径\n\"words_to_remove: # 要删除的单词\n"
-      ],
-      "color": "#c09430"
-    },
-    {
       "id": 28,
       "type": "Note",
       "pos": [
-        1513,
-        -971
+        1514,
+        -984
       ],
       "size": [
         1077.8734130859375,
@@ -344,6 +344,683 @@
       "properties": {},
       "widgets_values": [
         "1.2 工作流用示例\n\n在workflow目录下有json格式的工作流示例文件，示范了如何在ComfyUI中使用这些节点。\n\n下载解压zip文件，将得到的文件夹复制到 ComfyUI\\custom_nodes\\。\n\n1.3 节点使用示例\n\n在ComfyUI画布双击, 在搜索框输入\"PD\"。\n\nhttps://github.com/7BEII/Comfyui_PDuse"
+      ],
+      "color": "#c09430"
+    },
+    {
+      "id": 29,
+      "type": "PD_Image_centerCrop",
+      "pos": [
+        4800,
+        -1080
+      ],
+      "size": [
+        390,
+        82
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 13,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Result",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "slot_index": 0,
+          "label": "Result"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_Image_centerCrop"
+      },
+      "widgets_values": [
+        60,
+        0
+      ]
+    },
+    {
+      "id": 30,
+      "type": "LoadImage",
+      "pos": [
+        4790,
+        -1770
+      ],
+      "size": [
+        400,
+        620
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            13
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "那些年画里的往事 - 小红书.webp",
+        "image"
+      ]
+    },
+    {
+      "id": 31,
+      "type": "PreviewImage",
+      "pos": [
+        5240,
+        -1780
+      ],
+      "size": [
+        440,
+        610
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 33,
+      "type": "PreviewImage",
+      "pos": [
+        3980,
+        -1800
+      ],
+      "size": [
+        640,
+        1040
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 37,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 38,
+      "type": "LoadImage",
+      "pos": [
+        2760,
+        -1830
+      ],
+      "size": [
+        660,
+        540
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29,
+            36
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "c38ec4900aa1f2a20472e1a69e66c81.png",
+        "image"
+      ]
+    },
+    {
+      "id": 40,
+      "type": "Note",
+      "pos": [
+        4800,
+        -950
+      ],
+      "size": [
+        390,
+        70
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "使用说明",
+      "properties": {},
+      "widgets_values": [
+        "W-with:代表左右宽度中心裁切。\nH-high:代表高度往中心裁切。"
+      ],
+      "color": "#c09430"
+    },
+    {
+      "id": 41,
+      "type": "PD_Image_Crop_Location",
+      "pos": [
+        3460,
+        -1680
+      ],
+      "size": [
+        470,
+        360
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 36,
+          "label": "image"
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 49,
+          "widget": {
+            "name": "width"
+          },
+          "label": "width"
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 56,
+          "widget": {
+            "name": "height"
+          },
+          "label": "height"
+        },
+        {
+          "name": "x",
+          "type": "INT",
+          "link": 54,
+          "widget": {
+            "name": "x"
+          },
+          "label": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Result",
+          "type": "IMAGE",
+          "links": [
+            37
+          ],
+          "slot_index": 0,
+          "label": "Result"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_Image_Crop_Location"
+      },
+      "widgets_values": [
+        0,
+        0,
+        256,
+        256
+      ]
+    },
+    {
+      "id": 42,
+      "type": "LoadImage",
+      "pos": [
+        2750,
+        -1210
+      ],
+      "size": [
+        350,
+        520
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            32
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "Grid-新年唐装写真_00095_.png",
+        "image"
+      ]
+    },
+    {
+      "id": 45,
+      "type": "PD_GetImageSize",
+      "pos": [
+        3740,
+        -1100
+      ],
+      "size": [
+        200,
+        70
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 29,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [],
+          "slot_index": 0,
+          "label": "width"
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            56
+          ],
+          "slot_index": 1,
+          "label": "height"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_GetImageSize"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 46,
+      "type": "JWImageResizeByLongerSide",
+      "pos": [
+        3500,
+        -900
+      ],
+      "size": [
+        230,
+        82
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 32,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            33
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "JWImageResizeByLongerSide"
+      },
+      "widgets_values": [
+        1280,
+        "bicubic"
+      ]
+    },
+    {
+      "id": 47,
+      "type": "PD_GetImageSize",
+      "pos": [
+        3740,
+        -960
+      ],
+      "size": [
+        200,
+        90
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 33,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            42
+          ],
+          "slot_index": 0,
+          "label": "width"
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [],
+          "slot_index": 1,
+          "label": "height"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_GetImageSize"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 49,
+      "type": "LoadImage",
+      "pos": [
+        3120,
+        -1220
+      ],
+      "size": [
+        330,
+        520
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            38
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "MAX MARA Oversized Coat in Technical Jersey  麥絲瑪拉 大衣 (黑色) - Londo.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 50,
+      "type": "JWImageResizeByLongerSide",
+      "pos": [
+        3490,
+        -1070
+      ],
+      "size": [
+        230,
+        82
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 38,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            52
+          ],
+          "slot_index": 0,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "JWImageResizeByLongerSide"
+      },
+      "widgets_values": [
+        1280,
+        "bicubic"
+      ]
+    },
+    {
+      "id": 52,
+      "type": "easy showAnything",
+      "pos": [
+        3510,
+        -740
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "type": "*",
+          "link": 42,
+          "shape": 7,
+          "label": "anything"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": [
+            48
+          ],
+          "slot_index": 0,
+          "label": "output"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "960"
+      ]
+    },
+    {
+      "id": 55,
+      "type": "StringToInt",
+      "pos": [
+        3730,
+        -810
+      ],
+      "size": [
+        210,
+        40
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 48,
+          "widget": {
+            "name": "string"
+          },
+          "label": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            49
+          ],
+          "slot_index": 0,
+          "label": "INT"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StringToInt"
+      },
+      "widgets_values": [
+        "0"
+      ]
+    },
+    {
+      "id": 58,
+      "type": "PD_GetImageSize",
+      "pos": [
+        3510,
+        -1190
+      ],
+      "size": [
+        200,
+        46
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 52,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            54
+          ],
+          "label": "width",
+          "slot_index": 0
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "label": "height"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PD_GetImageSize"
+      }
+    },
+    {
+      "id": 59,
+      "type": "Note",
+      "pos": [
+        3980,
+        -700
+      ],
+      "size": [
+        630,
+        60
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "使用说明",
+      "properties": {},
+      "widgets_values": [
+        "裁切左边或者右边的图片,利用输入XY起点宽高进行裁切图片"
       ],
       "color": "#c09430"
     }
@@ -372,6 +1049,118 @@
       25,
       0,
       "*"
+    ],
+    [
+      13,
+      30,
+      0,
+      29,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      29,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      29,
+      38,
+      0,
+      45,
+      0,
+      "IMAGE"
+    ],
+    [
+      32,
+      42,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      33,
+      46,
+      0,
+      47,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      38,
+      0,
+      41,
+      0,
+      "IMAGE"
+    ],
+    [
+      37,
+      41,
+      0,
+      33,
+      0,
+      "IMAGE"
+    ],
+    [
+      38,
+      49,
+      0,
+      50,
+      0,
+      "IMAGE"
+    ],
+    [
+      42,
+      47,
+      0,
+      52,
+      0,
+      "*"
+    ],
+    [
+      48,
+      52,
+      0,
+      55,
+      0,
+      "STRING"
+    ],
+    [
+      49,
+      55,
+      0,
+      41,
+      1,
+      "INT"
+    ],
+    [
+      52,
+      50,
+      0,
+      58,
+      0,
+      "IMAGE"
+    ],
+    [
+      54,
+      58,
+      0,
+      41,
+      3,
+      "INT"
+    ],
+    [
+      56,
+      45,
+      1,
+      41,
+      2,
+      "INT"
     ]
   ],
   "groups": [
@@ -379,8 +1168,8 @@
       "id": 1,
       "title": "JSON_GROUP",
       "bounding": [
-        430.8634338378906,
-        -1883.12109375,
+        430,
+        -1880,
         684.13330078125,
         837.0852661132812
       ],
@@ -392,8 +1181,8 @@
       "id": 2,
       "title": "全部按照编号递增节点处理。",
       "bounding": [
-        1142.142333984375,
-        -1882.177490234375,
+        1140,
+        -1880,
         704.736083984375,
         833.3998413085938
       ],
@@ -405,8 +1194,8 @@
       "id": 3,
       "title": "PD_批量去除文本字体",
       "bounding": [
-        1873.685791015625,
-        -1879.5347900390625,
+        1870,
+        -1880,
         723.3157348632812,
         834.5201416015625
       ],
@@ -418,26 +1207,70 @@
       "id": 4,
       "title": "PD_节点汇总",
       "bounding": [
-        432.791259765625,
-        -2167.303466796875,
+        430,
+        -2170,
         2160.88671875,
         256.52471923828125
       ],
       "color": "#3f789e",
       "font_size": 180,
       "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "PD_image",
+      "bounding": [
+        2750,
+        -2170,
+        2070,
+        230
+      ],
+      "color": "#3f789e",
+      "font_size": 160,
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "title": "Group",
+      "bounding": [
+        4700,
+        -1900,
+        1040,
+        1080
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 8,
+      "title": "Group",
+      "bounding": [
+        2750,
+        -1910,
+        1890,
+        1310
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7972024500000013,
+      "scale": 0.2099283210943805,
       "offset": [
-        -921.4213704733529,
-        1597.8560921353308
+        1036.1203312196888,
+        3892.9577310243644
       ]
     },
-    "ue_links": []
+    "ue_links": [],
+    "node_versions": {
+      "comfy-core": "v0.3.10",
+      "comfyui-various": "36454f91606bbff4fc36d90234981ca4a47e2695",
+      "comfyui-art-venture": "50abaace756b96f5f5dc2c9d72826ef371afd45e"
+    }
   },
   "version": 0.4
 }
