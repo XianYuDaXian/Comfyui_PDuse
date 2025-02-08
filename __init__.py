@@ -1,13 +1,13 @@
-from .json_groupfontsize import PD_node  # 从当前模块引入名为 MyNode 的类
+from .json_groupfontsize import json_group_fontsize  # 从当前模块引入名为 MyNode 的类
 from .jsonbach import BatchJsonIncremental
 from .RemoveColorWords import PD_RemoveColorWords
-from .PDimage import PD_Image_Crop_Location
-from .PDimage import PD_ImageConcanate
+from .image import PD_Image_Crop_Location
+from .image import PD_ImageConcanate
 from .namefixer import FileName_refixer
 
 
 NODE_CLASS_MAPPINGS = {
-    "PD_node": PD_node,
+    "json_group_fontsize": json_group_fontsize,
     "BatchJsonIncremental": BatchJsonIncremental, 
     "PD_RemoveColorWords": PD_RemoveColorWords,
     "PD_Image_Crop_Location": PD_Image_Crop_Location,
@@ -18,8 +18,8 @@ NODE_CLASS_MAPPINGS = {
 
 # 节点类映射，定义了节点的名称与类之间的映射关系
 NODE_DISPLAY_NAME_MAPPINGS = {
-                            "PD_node": "PD_group字体大小统一" ,
-                            "BatchJsonIncremental": "PD_批量JSON递增编号排序JSON", 
+                            "json_group_fontsize": "PD_json_group_fontsize" ,
+                            "BatchJsonIncremental": "PD_Incremental_JSON", 
                             "PD_RemoveColorWords": "PD_removeword",  # 新添加的节点
                             "PD_Image_Crop_Location": "PD Image Crop Location",
                             "PD_ImageConcanate": "PD ImageConcanate", 
