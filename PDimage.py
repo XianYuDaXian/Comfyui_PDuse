@@ -1,192 +1,116 @@
 import torch
-from torchvision import transforms
 from PIL import Image
 import numpy as np
-
-def pil2tensor(image):
-        return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
+from comfy.utils import common_upscale
 
 class PD_Image_Crop_Location:
+        
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "required": {
-                "image": ("IMAGE",),  # 输入图像张量 [B, H, W, C]
+            "required": {  # 必须的输入参数
+                "image": ("IMAGE",),  # 输入的图像
                 "x": ("INT", {"default": 0, "min": 0, "max": 10000000, "step": 1}),  # 裁剪区域左上角 X 坐标
                 "y": ("INT", {"default": 0, "min": 0, "max": 10000000, "step": 1}),  # 裁剪区域左上角 Y 坐标
-                "width": ("INT", {"default": 256, "min": 1, "max": 10000000, "step": 1}),  # 裁剪区域宽度
-                "height": ("INT", {"default": 256, "min": 1, "max": 10000000, "step": 1}),  # 裁剪区域高度
+                "width": ("INT", {"default": 256, "min": 0, "max": 10000000, "step": 1}),  # 裁剪区域宽度
+                "height": ("INT", {"default": 256, "min": 0, "max": 10000000, "step": 1}),  # 裁剪区域高度
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)  # 返回裁切后的图像张量
+    # 返回类型：裁切后的图像
+    RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("Result",)  # 返回值的名称
     FUNCTION = "image_crop_location"  # 指定执行的方法名称
-    CATEGORY = "PD_Image/Process"  # 定义节点的类别
+    CATEGORY = "PD Suite/Image/Process"  # 定义节点的类别，便于分类
 
-    def image_crop_location(self, image, x=0, y=0, width=256, height=256):
-        """
-        通过给定的 x, y 坐标和裁切的宽度、高度裁剪图像。
+import asyncio
+import torch
+import torch.nn.functional as F
 
-        参数：
-            image (tensor): 输入图像张量 [B, H, W, C]
-            x (int): 裁剪区域左上角 X 坐标
-            y (int): 裁剪区域左上角 Y 坐标
-            width (int): 裁剪区域宽度
-            height (int): 裁剪区域高度
-
-        返回：
-            (tensor): 裁剪后的图像张量 [B, H', W', C]
-        """
-        # 确保输入图像张量的格式正确 [B, H, W, C]
-        if image.dim() != 4:
-            raise ValueError("输入图像张量必须是 4 维的 [B, H, W, C]")
-
-        # 获取输入图像的尺寸
-        batch_size, img_height, img_width, channels = image.shape
-
-        # 检查裁剪区域是否超出图像范围
-        if x >= img_width or y >= img_height:
-            raise ValueError("裁剪区域超出图像范围")
-
-        # 计算裁剪区域的右下边界坐标
-        crop_left = max(x, 0)
-        crop_top = max(y, 0)
-        crop_right = min(crop_left + width, img_width)
-        crop_bottom = min(crop_top + height, img_height)
-
-        # 确保裁剪区域的宽度和高度大于零
-        crop_width = crop_right - crop_left
-        crop_height = crop_bottom - crop_top
-        if crop_width <= 0 or crop_height <= 0:
-            raise ValueError("裁剪区域无效，请检查 x, y, width 和 height 的值")
-
-        # 裁剪图像张量
-        cropped_image = image[:, crop_top:crop_bottom, crop_left:crop_right, :]
-
-        # 调整裁剪后的图像尺寸为 8 的倍数（可选）
-        new_height = (cropped_image.shape[1] // 8) * 8
-        new_width = (cropped_image.shape[2] // 8) * 8
-        if new_height != cropped_image.shape[1] or new_width != cropped_image.shape[2]:
-            cropped_image = torch.nn.functional.interpolate(
-                cropped_image.permute(0, 3, 1, 2),  # [B, C, H, W]
-                size=(new_height, new_width),
-                mode="bilinear",
-                align_corners=False,
-            ).permute(0, 2, 3, 1)  # [B, H, W, C]
-
-        return (cropped_image,)
-
-class PD_Image_centerCrop:
+class PD_ImageConcanate:
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "image": ("IMAGE",),  # 输入图像张量 [B, H, W, C]
-                "W": ("INT", {"default": 0, "min": 0, "max": 10000000, "step": 1}),  # 左右两边各自裁切的宽度
-                "H": ("INT", {"default": 0, "min": 0, "max": 10000000, "step": 1}),  # 上下两边各自裁切的高度
-            }
-        }
+    def INPUT_TYPES(s):
+        return {"required": {  # 定义输入参数及其类型
+            "image1": ("IMAGE",),  # 第一幅输入图像
+            "image2": ("IMAGE",),  # 第二幅输入图像
+            "direction": (  # 拼接方向，有四个选项
+                ['right', 'down', 'left', 'up'],
+                {"default": 'right'}  # 默认为向右拼接
+            ),
+            "match_image_size": ("BOOLEAN", {"default": True}),  # 是否调整图像大小，默认为是
+        }}
+    
+    RETURN_TYPES = ("IMAGE",)  # 定义输出类型
+    FUNCTION = "concanate"  # 定义函数名
+    CATEGORY = "PDNodes/image"  # 定义节点分类
+    DESCRIPTION = """Concatenates the image2 to image1 in the specified direction."""  # 功能描述
 
-    RETURN_TYPES = ("IMAGE",)  # 返回裁切后的图像张量
-    RETURN_NAMES = ("Result",)  # 返回值的名称
-    FUNCTION = "center_crop"  # 指定执行的方法名称
-    CATEGORY = "PD_Image/Process"  # 定义节点的类别
+    import torch
+    import torch.nn.functional as F
 
-    def center_crop(self, image, W, H):
-        """
-        根据动态输入的 W 和 H 值，在左右和上下两边等边裁切，确保裁切后的图像居中。
+    def concanate(self, image1, image2, direction, match_image_size, first_image_shape=None):
+        # 获取两张图像的尺寸信息
+        batch_size1, channels1, height1, width1 = image1.shape
+        batch_size2, channels2, height2, width2 = image2.shape
 
-        参数：
-            image (tensor): 输入图像张量 [B, H, W, C]
-            W (int): 动态输入的 W 值（左右两边各自裁切的宽度）
-            H (int): 动态输入的 H 值（上下两边各自裁切的高度）
+        # 如果需要调整图像大小
+        if match_image_size:
+            # 目标尺寸：如果传入了first_image_shape则使用，否则使用image1的尺寸
+            target_shape = first_image_shape if first_image_shape is not None else image1.shape
+            target_height = target_shape[2]
+            target_width = target_shape[3]
 
-        返回：
-            (tensor): 裁切后的图像张量 [B, H', W', C]
-        """
-        # 确保输入图像张量的格式正确 [B, H, W, C]
-        if image.dim() != 4:
-            raise ValueError("输入图像张量必须是 4 维的 [B, H, W, C]")
+            # 调整image2的大小以匹配目标尺寸
+            image2_resized = F.interpolate(image2, size=(target_height, target_width), mode='bilinear', align_corners=False)
+        else:
+            image2_resized = image2  # 不调整大小，直接使用原图
 
-        # 获取输入图像的尺寸
-        batch_size, img_height, img_width, channels = image.shape
+        # 确保两张图片的通道数一致
+        channels_image1 = image1.shape[1]
+        channels_image2 = image2_resized.shape[1]
 
-        # 检查 W 和 H 是否有效
-        if W < 0 or W >= img_width / 2:
-            raise ValueError(f"W 的值无效，必须满足 0 <= W < {img_width / 2}")
-        if H < 0 or H >= img_height / 2:
-            raise ValueError(f"H 的值无效，必须满足 0 <= H < {img_height / 2}")
+        if channels_image1 != channels_image2:
+            if channels_image1 < channels_image2:
+                # 给image1添加透明alpha通道
+                alpha_channel = torch.ones(
+                    (*image1.shape[:-1], channels_image2 - channels_image1),
+                    device=image1.device
+                )
+                image1 = torch.cat((image1, alpha_channel), dim=1)
+            else:
+                # 给image2_resized添加透明alpha通道
+                alpha_channel = torch.ones(
+                    (*image2_resized.shape[:-1], channels_image1 - channels_image2),
+                    device=image2_resized.device
+                )
+                image2_resized = torch.cat((image2_resized, alpha_channel), dim=1)
 
-        # 计算左右裁切的起始点 x 和裁切宽度 width
-        x = W
-        width = img_width - 2 * W
+        # 根据指定的方向进行拼接
+        if direction == 'right':
+            # 拼接在右边：需要拼接宽度
+            concatenated_image = torch.cat((image1, image2_resized), dim=3)  # dim=3表示在宽度方向拼接
+        elif direction == 'down':
+            # 拼接在下边：需要拼接高度
+            concatenated_image = torch.cat((image1, image2_resized), dim=2)  # dim=2表示在高度方向拼接
+        elif direction == 'left':
+            # 拼接在左边：需要拼接宽度
+            concatenated_image = torch.cat((image2_resized, image1), dim=3)  # dim=3表示在宽度方向拼接
+        elif direction == 'up':
+            # 拼接在上边：需要拼接高度
+            concatenated_image = torch.cat((image2_resized, image1), dim=2)  # dim=2表示在高度方向拼接
 
-        # 计算上下裁切的起始点 y 和裁切高度 height
-        y = H
-        height = img_height - 2 * H
+        return concatenated_image
 
-        # 裁剪图像张量
-        cropped_image = image[:, y:y + height, x:x + width, :]
 
-        return (cropped_image,)
-
-class PD_GetImageSize:
-    def __init__(self):
-        pass
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-            },
-            "hidden": {
-                "unique_id": "UNIQUE_ID",
-                "extra_pnginfo": "EXTRA_PNGINFO",
-            },
-        }
-
-    RETURN_TYPES = ("INT", "INT")  # 输出宽高
-    RETURN_NAMES = ("width", "height")
-    FUNCTION = "get_size"
-    CATEGORY = "Masquerade Nodes"
-    OUTPUT_NODE = True  # 启用输出节点功能
-
-    def get_size(self, image, unique_id=None, extra_pnginfo=None):
-        # 检查 image 是否为 None
-        if image is None:
-            raise ValueError("No image provided to PD:GetImageSize node")
-
-        # 获取宽高信息
-        image_size = image.size()
-        image_width = int(image_size[2])
-        image_height = int(image_size[1])
-
-        # 将宽高信息转换为字符串
-        size_info = f"Width: {image_width}, Height: {image_height}"
-
-        # 更新节点界面显示
-        if extra_pnginfo and isinstance(extra_pnginfo, list) and "workflow" in extra_pnginfo[0]:
-            workflow = extra_pnginfo[0]["workflow"]
-            node = next((x for x in workflow["nodes"] if str(x["id"]) == unique_id), None)
-            if node:
-                node["widgets_values"] = [size_info]  # 将宽高信息显示在节点界面上
-
-        # 返回宽高信息
-        return (image_width, image_height, {"ui": {"text": [size_info]}})
 
 # 在 ComfyUI 中的节点映射配置
 NODE_CLASS_MAPPINGS = {
-    "PD_Image_Crop_Location": PD_Image_Crop_Location,
-    "PD_Image_centerCrop": PD_Image_centerCrop,
-    "PD_GetImageSize": PD_GetImageSize,  # 这个节点对应的类
-    
+    "PD_Image_Crop_Location": PD_Image_Crop_Location, 
+    "PD_ImageConcanate": PD_ImageConcanate, # 这个节点对应的类
 }
 
 # 设置节点在 UI 中显示的名称
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PD_Image_Crop_Location": "PD:Image Crop Location",
-    "PD_Image_centerCrop": "PD:Image centerCrop",
-    "PD_GetImageSize": "PD:GetImageSize",  # 更新显示名称
+    "PD_Image_Crop_Location": "PD Image Crop Location",
+    "PD_ImageConcanate": "PD ImageConcanate", # 自定义节点名称
 }
