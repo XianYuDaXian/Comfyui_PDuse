@@ -32,33 +32,52 @@ class PD_RemoveColorWords:
             # 如果 `words_to_add` 是空字符串或仅包含空格，则跳过添加
             words_to_add = words_to_add if words_to_add.strip() else None
 
-            # 构建正则表达式（如果 `words_to_remove` 存在）
+            # 修改正则表达式的构建方式
             if words_to_remove:
-                regex_pattern = r'\b(' + '|'.join(re.escape(word) for word in words_to_remove) + r')\b'
+                regex_pattern = r'\b(' + '|'.join(
+                    re.escape(word) + r'(?:\s*\([^)]*\)|\s*_[^\s,]*|\s+\([^)]*\)|\s+[^\s,]*)?'
+                    for word in words_to_remove
+                ) + r')\b'
 
             processed_files = 0  # 统计处理的文件数
+            total_files = 0  # 统计扫描的文件总数
+            modified_files = 0  # 统计实际修改的文件数
 
             for root, dirs, files in os.walk(directory_path):
                 for file in files:
                     if file.endswith('.txt'):
+                        total_files += 1
                         file_path = os.path.join(root, file)
                         try:
                             with open(file_path, 'r', encoding='utf-8') as f:
                                 content = f.read()
+                            
+                            original_content = content  # 保存原始内容以便比较
 
                             # 如果 `words_to_remove` 存在，删除指定单词
                             if words_to_remove:
-                                content = re.sub(regex_pattern, '', content, flags=re.IGNORECASE)
+                                for word in words_to_remove:
+                                    # 分别处理不同的模式
+                                    patterns = [
+                                        rf'\b{re.escape(word)}\s*\([^)]*\)',  # 匹配 "PD (style)"
+                                        rf'\b{re.escape(word)}_[^\s,]*',      # 匹配 "PD_style"
+                                        rf'\b{re.escape(word)}\b'             # 匹配单独的 "PD"
+                                    ]
+                                    for pattern in patterns:
+                                        content = re.sub(pattern, '', content, flags=re.IGNORECASE)
 
                             # 如果 `words_to_add` 存在，添加新单词到文件开头
                             if words_to_add:
                                 content = words_to_add + "\n" + content
 
-                            # 写回修改后的内容
-                            with open(file_path, 'w', encoding='utf-8') as f:
-                                f.write(content)
-
-                            print(f"处理完成: {file_path}")
+                            # 检查内容是否有变化
+                            if content != original_content:
+                                modified_files += 1
+                                # 写回修改后的内容
+                                with open(file_path, 'w', encoding='utf-8') as f:
+                                    f.write(content)
+                                print(f"处理完成: {file_path}")
+                            
                             processed_files += 1
                         except Exception as e:
                             print(f"跳过文件 {file_path}，错误: {e}")
@@ -67,7 +86,7 @@ class PD_RemoveColorWords:
             if processed_files == 0:
                 return (f"未找到符合条件的文件",)
 
-            result_message = f"处理完成，共处理了 {processed_files} 个文件"
+            result_message = f"处理完成，共扫描了 {total_files} 个文件，实际修改了 {modified_files} 个文件"
             if words_to_remove:
                 result_message += f"，已删除单词：{', '.join(words_to_remove)}"
             if words_to_add:
