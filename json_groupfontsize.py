@@ -1,7 +1,7 @@
 import json
 import os  # 用于路径和文件操作  
 #
-class json_group_fontsize:   # 定义一个名为 MyNode 的类，表示自定义节点
+class PD_node:   # 定义一个名为 MyNode 的类，表示自定义节点
     def __init__(self):
         pass
      
@@ -109,10 +109,10 @@ class json_group_fontsize:   # 定义一个名为 MyNode 的类，表示自定�
 
 # 定义一个字典，包含所有需要导出的节点及其名称
 NODE_CLASS_MAPPINGS = {
-    "json_group_fontsize": json_group_fontsize   # 将 "My First Node" 映射到 MyNode 类，告诉系统应该用哪个类来实现这个节点的逻辑。
+    "PD_node": PD_node   # 将 "My First Node" 映射到 MyNode 类，告诉系统应该用哪个类来实现这个节点的逻辑。
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {  
-    "json_group_fontsize": "json_group_fontsize"   # 将内部名称 "FirstNode" 映射为显示名称 "My First Node"
+    "PD_node": "PD_use"   # 将内部名称 "FirstNode" 映射为显示名称 "My First Node"
 }
