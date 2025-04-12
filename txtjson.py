@@ -26,11 +26,11 @@ class PD_RemoveColorWords:
 
             print(f"正在处理目录: {directory_path}")
 
-            # 如果 `words_to_remove` 是空字符串或仅包含空格，则设置为 None
+            # 处理要删除的单词
             words_to_remove = [word.strip() for word in words_to_remove.split(",") if word.strip()] or None
 
-            # 如果 `words_to_add` 是空字符串或仅包含空格，则跳过添加
-            words_to_add = words_to_add if words_to_add.strip() else None
+            # 处理要添加的单词
+            words_to_add = words_to_add.strip() if words_to_add.strip() else None
 
             # 构建正则表达式（如果 `words_to_remove` 存在）
             if words_to_remove:
@@ -40,34 +40,40 @@ class PD_RemoveColorWords:
 
             for root, dirs, files in os.walk(directory_path):
                 for file in files:
-                    if file.endswith('.txt'):
-                        file_path = os.path.join(root, file)
-                        try:
-                            with open(file_path, 'r', encoding='utf-8') as f:
-                                content = f.read()
+                    # 确保只处理.txt文件
+                    if not file.lower().endswith('.txt'):
+                        continue
+                        
+                    file_path = os.path.join(root, file)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
 
-                            # 如果 `words_to_remove` 存在，删除指定单词
-                            if words_to_remove:
-                                content = re.sub(regex_pattern, '', content, flags=re.IGNORECASE)
+                        # 如果 `words_to_remove` 存在，删除指定单词
+                        if words_to_remove:
+                            content = re.sub(regex_pattern, '', content, flags=re.IGNORECASE)
 
-                            # 如果 `words_to_add` 存在，添加新单词到文件开头
-                            if words_to_add:
-                                content = words_to_add + "\n" + content
+                        # 如果 `words_to_add` 存在，添加新单词到文件开头
+                        if words_to_add:
+                            content = words_to_add + "\n" + content
 
-                            # 写回修改后的内容
-                            with open(file_path, 'w', encoding='utf-8') as f:
-                                f.write(content)
+                        # 写回修改后的内容
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            f.write(content)
 
-                            print(f"处理完成: {file_path}")
-                            processed_files += 1
-                        except Exception as e:
-                            print(f"跳过文件 {file_path}，错误: {e}")
-                            continue
+                        print(f"处理完成: {file_path}")
+                        processed_files += 1
+                    except UnicodeDecodeError:
+                        print(f"跳过文件 {file_path}，不是有效的UTF-8文本文件")
+                        continue
+                    except Exception as e:
+                        print(f"跳过文件 {file_path}，错误: {e}")
+                        continue
 
             if processed_files == 0:
-                return (f"未找到符合条件的文件",)
+                return ("未找到符合条件的.txt文件",)
 
-            result_message = f"处理完成，共处理了 {processed_files} 个文件"
+            result_message = f"处理完成，共处理了 {processed_files} 个.txt文件"
             if words_to_remove:
                 result_message += f"，已删除单词：{', '.join(words_to_remove)}"
             if words_to_add:
