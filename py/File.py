@@ -71,7 +71,7 @@ class FileName_refixer:
             return (f"Critical error: {str(e)}",)
 
 # 在 ComfyUI 中的节点映射配置
-NODE_CLASS_MAPPINGS = {"FileName_refixer": FileName_refixer}
+NODE_CLASS_MAPPINGS = {"PDFile_FileName_refixer": FileName_refixer}
 # 设置节点在 UI 中显示的名称
-NODE_DISPLAY_NAME_MAPPINGS = {"FileName_refixer": "FileName_refixer"} # 自定义节点名称
+NODE_DISPLAY_NAME_MAPPINGS = {"PDFile_FileName_refixer": "PDFile_Name_refixer"} # 自定义节点名称
 

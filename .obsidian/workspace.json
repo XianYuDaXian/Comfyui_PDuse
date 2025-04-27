@@ -11,10 +11,14 @@
             "id": "e4aaf24307ab614c",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "README"
             }
           }
         ]
@@ -161,12 +165,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e4aaf24307ab614c",
+  "active": "9a1d5616cc06838f",
   "lastOpenFiles": [
+    "py/__pycache__/File.cpython-310.pyc",
+    "py/File.py",
+    "py/file.py",
+    "py/__pycache__/txt.cpython-310.pyc",
+    "py/__pycache__/file.cpython-310.pyc",
+    "py/txt.py",
+    "py/__pycache__/text.cpython-310.pyc",
+    "py/__pycache__/json.cpython-310.pyc",
+    "py/text.py",
+    "py/json.py",
     "README.md",
     "image/image_font.png",
     "image",
-    "新建文件夹",
     "image_font.png"
   ]
 }
