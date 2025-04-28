@@ -55,3 +55,12 @@ git clone
 - font_name：使用的字体文件名（从fonts目录中选择）
 
 #### **image处理**
+
+**PD_Load_Images：**
+directory: 指定包含图片的文件夹路径。
+image_load_cap：限制最多加载数量，默认值: 0 表示无限制，如果填入数值则会限制具体多少张。
+start_index (起始索引) 默认 0 从文件夹中的第几张图片开始加载（跳过前面的图片）。
+load_always ： 设为True时，每次运行都强制重新加载（忽略缓存） false则是第一次加载，第二次不重复。
+默认值: False
+
+输出为image，mask 和paths.
