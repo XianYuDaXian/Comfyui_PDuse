@@ -1,7 +1,13 @@
+import os
 import torch
 from torchvision import transforms
 from PIL import Image
 import numpy as np
+import shutil
+from pathlib import Path
+from typing import List, Tuple, Dict, Optional
+import folder_paths
+import comfy.utils
 
 def pil2tensor(image):
         return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
@@ -185,16 +191,18 @@ class ImageMergerWithText:
     """
     一个将两张图片左右合并并在下方添加文字说明的节点
     """
-    
+
     def __init__(self):
         pass
-    
+
     @classmethod
     def INPUT_TYPES(cls):
         # 获取当前脚本所在目录的 fonts 子目录
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        fonts_dir = os.path.join(current_dir, "fonts")
-        
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        plugin_root = os.path.dirname(current_dir)
+        fonts_dir = os.path.join(plugin_root, "fonts")
+
         # 扫描 fonts 目录下的所有 .ttf 和 .otf 文件
         font_files = []
         if os.path.exists(fonts_dir):
@@ -202,11 +210,11 @@ class ImageMergerWithText:
                 f for f in os.listdir(fonts_dir)
                 if f.lower().endswith(('.ttf', '.otf'))
             ]
-        
+
         # 如果没有找到字体文件，则默认使用系统字体
         if not font_files:
             font_files = ["system"]  # 默认选项
-        
+
         return {
             "required": {
                 "image1": ("IMAGE",),
@@ -228,28 +236,28 @@ class ImageMergerWithText:
         # 转换张量为PIL图像
         img1 = self._safe_tensor_to_pil(image1)
         img2 = self._safe_tensor_to_pil(image2)
-        
+
         # 计算缩放比例（以最长边为准）
         max_dimension = max(img1.width, img1.height, img2.width, img2.height)
-        
+
         # 等比例缩放两张图片
         def resize_image(img):
             ratio = max_dimension / max(img.width, img.height)
             new_width = int(img.width * ratio)
             new_height = int(img.height * ratio)
             return img.resize((new_width, new_height), Image.LANCZOS)
-        
+
         img1 = resize_image(img1)
         img2 = resize_image(img2)
-        
+
         # 合并图片
         merged_img = Image.new("RGB", (img1.width + img2.width, max(img1.height, img2.height)))
         merged_img.paste(img1, (0, (merged_img.height - img1.height) // 2))  # 垂直居中
         merged_img.paste(img2, (img1.width, (merged_img.height - img2.height) // 2))  # 垂直居中
-        
+
         # 加载字体
         font = self._load_font(font_size, font_file)
-        
+
         # 计算文本尺寸（兼容新旧Pillow版本）
         try:
             # Pillow 10.0.0+ 使用新的textlength和textbbox方法
@@ -260,53 +268,53 @@ class ImageMergerWithText:
             # 旧版Pillow使用getsize方法
             text1_width, text_height = font.getsize(text1)
             text2_width, _ = font.getsize(text2)
-        
+
         # 创建最终图像（带文字区域）
         bg_height = text_height + padding_up + padding_down
         final_img = Image.new("RGB", (merged_img.width, merged_img.height + bg_height), "black")
         final_img.paste(merged_img, (0, 0))
-        
+
         # 绘制文字
         draw = ImageDraw.Draw(final_img)
         text_y = merged_img.height + padding_up
-        
+
         # 第一张图的文字居中
         text1_x = img1.width // 2 - text1_width // 2
         draw.text((text1_x, text_y), text1, font=font, fill="white")
-        
+
         # 第二张图的文字居中
         text2_x = img1.width + img2.width // 2 - text2_width // 2
         draw.text((text2_x, text_y), text2, font=font, fill="white")
-        
+
         # 转换回张量
         return (self._pil_to_tensor(final_img),)
-    
+
     def _safe_tensor_to_pil(self, tensor):
         """安全地将张量转换为PIL图像"""
         tensor = tensor.cpu().detach()
-        
+
         # 处理批次维度
         if tensor.dim() == 4:
             tensor = tensor[0]
-        
+
         # 处理通道顺序
         if tensor.shape[0] <= 4:  # CHW格式
             tensor = tensor.permute(1, 2, 0)
-        
+
         # 归一化处理
         if tensor.dtype == torch.float32 and tensor.max() <= 1.0:
             tensor = tensor * 255
-        
+
         # 转换为uint8
         tensor = tensor.to(torch.uint8)
-        
+
         # 处理单通道图像
         if tensor.dim() == 2 or tensor.shape[-1] == 1:
             tensor = tensor.unsqueeze(-1) if tensor.dim() == 2 else tensor
             tensor = torch.cat([tensor]*3, dim=-1)  # 转为RGB
-        
+
         return Image.fromarray(tensor.numpy())
-    
+
     def _load_font(self, font_size, font_file="system"):
         """加载字体，优先从 fonts 目录加载"""
         if font_file == "system":
@@ -315,27 +323,355 @@ class ImageMergerWithText:
             except:
                 return ImageFont.load_default()
         else:
-            # 从插件目录的 fonts 子目录加载字体
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            font_path = os.path.join(current_dir, "fonts", font_file)
+            # 重新计算插件根目录
+            current_file = os.path.abspath(__file__)
+            current_dir = os.path.dirname(current_file)           # 当前 py 文件所在目录（py/）
+            plugin_root = os.path.dirname(current_dir)           # 插件根目录（Comfyui_PDuse/）
+            font_path = os.path.join(plugin_root, "fonts", font_file)  # 拼接字体路径
+
             try:
                 return ImageFont.truetype(font_path, font_size)
             except Exception as e:
                 print(f"⚠️ 字体加载失败: {font_file}, 回退到系统默认字体。错误: {e}")
                 return ImageFont.load_default()
-    
+
     def _pil_to_tensor(self, image):
         """将PIL图像转换为张量"""
         if image.mode == 'RGBA':
             image = image.convert('RGB')
         return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
 
+from PIL import Image, ImageOps
+import folder_paths
+from typing import Tuple
+from math import floor
+
+class BatchImageRename:
+    """
+    简化版批量图片重命名
+    输入: 文件路径, 后缀, 输出格式, 开始编号, 前缀
+    输出: 处理结果文本摘要
+    """
+    
+    """
+    批量图片重命名(带输出路径选项)
+    输入: 文件路径, 输出路径, 后缀, 输出格式, 开始编号, 前缀
+    输出: 处理结果文本摘要
+    """
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "input_folder": ("STRING", {"default": "input", "multiline": False, "placeholder": "输入图片文件夹路径"}),
+                "output_folder": ("STRING", {"default": "output", "multiline": False, "placeholder": "输出文件夹路径"}),
+                "filename": ("STRING", {"default": "", "multiline": False, "placeholder": "新文件名(留空保留原文件名)"}),
+                "suffix": ("STRING", {"default": "_", "multiline": False, "placeholder": "文件名后缀"}),
+                "output_format": (["png", "jpg"], {"default": "png"}),
+                "max_side_length": ("INT", {"default": 2048, "min": 64, "max": 8192, "step": 64}),
+                "start_number": ("INT", {"default": 1, "min": 1, "max": 10000, "step": 1}),
+            },
+            "optional": {
+                "keep_aspect_ratio": ("BOOLEAN", {"default": True}),
+                "resize_enabled": ("BOOLEAN", {"default": True}),
+            }
+        }
+    
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("result_summary",)
+    FUNCTION = "process_images"
+    CATEGORY = "image/utils"
+    
+    def process_images(self, input_folder: str, output_folder: str, filename: str, suffix: str, 
+                     output_format: str, max_side_length: int, start_number: int,
+                     keep_aspect_ratio: bool = True, resize_enabled: bool = True) -> Tuple[str]:
+        
+        # 处理 output_format 可能为索引的情况
+        if isinstance(output_format, int):
+            output_format = ["png", "jpg"][output_format]
+        elif output_format not in ["png", "jpg"]:
+            return (f"错误: 无效的输出格式 '{output_format}'，必须是 'png' 或 'jpg'",)
+        
+        # 验证输入文件夹
+        if not os.path.isdir(input_folder):
+            os.makedirs(input_folder, exist_ok=True)
+            return (f"警告: 输入文件夹不存在，已自动创建: {input_folder}",)
+        
+        # 设置输出文件夹
+        os.makedirs(output_folder, exist_ok=True)
+            
+        # 获取输入文件夹中的所有图片文件
+        image_extensions = ['.png', '.jpg', '.jpeg', '.webp', '.bmp']
+        input_files = []
+        for file in os.listdir(input_folder):
+            if any(file.lower().endswith(ext) for ext in image_extensions):
+                input_files.append(os.path.join(input_folder, file))
+        
+        if not input_files:
+            return (f"错误: 在文件夹中未找到图片文件: {input_folder}",)
+        
+        renamed_files = []
+        counter = start_number
+        processed_count = 0
+        resize_info = []
+        
+        for input_file in sorted(input_files):
+            try:
+                # 获取原文件名（不带扩展名）
+                original_name = os.path.splitext(os.path.basename(input_file))[0]
+                
+                # 确定新文件名
+                if filename:  # 如果指定了新文件名
+                    new_name = f"{filename}{suffix}{counter}"
+                else:  # 否则保留原文件名
+                    new_name = original_name
+                
+                new_filename = f"{new_name}.{output_format}"
+                output_path = os.path.join(output_folder, new_filename)
+                
+                # 打开图片
+                img = Image.open(input_file)
+                original_width, original_height = img.size
+                
+                # 调整尺寸逻辑
+                if resize_enabled and keep_aspect_ratio:
+                    # 强制将最长边缩放到 max_side_length（无论原始尺寸大小）
+                    if original_width >= original_height:
+                        scale_ratio = max_side_length / original_width
+                        new_width = max_side_length
+                        new_height = floor(original_height * scale_ratio)
+                    else:
+                        scale_ratio = max_side_length / original_height
+                        new_height = max_side_length
+                        new_width = floor(original_width * scale_ratio)
+                    
+                    img = img.resize((new_width, new_height), Image.LANCZOS)
+                    resize_info.append(
+                        f"{os.path.basename(input_file)}: {img.size[0]}x{img.size[1]} (最长边已强制为 {max_side_length}px)"
+                    )
+                elif resize_enabled and not keep_aspect_ratio:
+                    # 不保持宽高比，强制为正方形
+                    img = ImageOps.fit(img, (max_side_length, max_side_length), method=Image.LANCZOS)
+                    resize_info.append(
+                        f"{os.path.basename(input_file)}: 强制调整为 {max_side_length}x{max_side_length}"
+                    )
+                
+                # 保存图片
+                if output_format.lower() == 'png':
+                    img.save(output_path, format='PNG', compress_level=4)
+                elif output_format.lower() == 'jpg':
+                    img.save(output_path, format='JPEG', quality=90)
+                
+                renamed_files.append(new_filename)
+                counter += 1
+                processed_count += 1
+            except Exception as e:
+                return (f"处理文件 {os.path.basename(input_file)} 时出错: {str(e)}",)
+        
+        # 生成结果摘要
+        summary_lines = [
+            f"批量处理完成!",
+            f"• 处理图片总数: {processed_count}张",
+            f"• 输入文件夹: {input_folder}",
+            f"• 输出文件夹: {output_folder}",
+            f"• 命名模式: {'自定义' if filename else '原文件名'}{suffix}[编号].{output_format}",
+            f"• 起始编号: {start_number}",
+            f"• 最长边强制为: {max_side_length}px",
+            f"• 保持宽高比: {'是' if keep_aspect_ratio else '否'}",
+        ]
+        
+        if resize_info:
+            summary_lines.append("\n尺寸调整详情:")
+            for info in resize_info[:3]:
+                summary_lines.append(f"  {info}")
+            if len(resize_info) > 3:
+                summary_lines.append(f"  (共处理 {len(resize_info)} 张图片...)")
+        
+        summary = "\n".join(summary_lines)
+        
+        return (summary,)
+
+from PIL import Image, ImageOps
+
+class Load_Images:
+    """
+    A ComfyUI node to load multiple images from a directory with various options.
+    """
+    
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "directory": ("STRING", {
+                    "default": "",
+                    "multiline": False,
+                    "dynamicPrompts": False
+                }),
+            },
+            "optional": {
+                "image_load_cap": ("INT", {
+                    "default": 0, 
+                    "min": 0, 
+                    "step": 1,
+                    "display": "number"
+                }),
+                "start_index": ("INT", {
+                    "default": 0, 
+                    "min": 0, 
+                    "max": 0xffffffffffffffff, 
+                    "step": 1,
+                    "display": "number"
+                }),
+                "load_always": ([False, True], {
+                    "default": False
+                }),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "MASK", "STRING")
+    RETURN_NAMES = ("images", "masks", "file_paths")
+    FUNCTION = "load_images"
+    CATEGORY = "image/loading"
+    OUTPUT_IS_LIST = (True, True, True)
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        if 'load_always' in kwargs and kwargs['load_always']:
+            return float("NaN")
+        else:
+            return hash(frozenset(kwargs))
+
+    def load_images(self, directory: str, image_load_cap: int = 0, start_index: int = 0, load_always=False):
+        if not os.path.isdir(directory):
+            raise FileNotFoundError(f"Directory '{directory}' cannot be found.")
+        
+        dir_files = os.listdir(directory)
+        if len(dir_files) == 0:
+            raise FileNotFoundError(f"No files in directory '{directory}'.")
+
+        # Filter files by extension
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.webp']
+        dir_files = [f for f in dir_files if any(f.lower().endswith(ext) for ext in valid_extensions)]
+        dir_files = sorted(dir_files)
+        dir_files = [os.path.join(directory, x) for x in dir_files]
+
+        # Apply start index
+        dir_files = dir_files[start_index:]
+
+        images = []
+        masks = []
+        file_paths = []
+
+        limit_images = image_load_cap > 0
+        image_count = 0
+
+        for image_path in dir_files:
+            if limit_images and image_count >= image_load_cap:
+                break
+                
+            try:
+                i = Image.open(image_path)
+                i = ImageOps.exif_transpose(i)
+                image = i.convert("RGB")
+                image = np.array(image).astype(np.float32) / 255.0
+                image = torch.from_numpy(image)[None,]
+
+                if 'A' in i.getbands():
+                    mask = np.array(i.getchannel('A')).astype(np.float32) / 255.0
+                    mask = 1. - torch.from_numpy(mask)
+                else:
+                    mask = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
+
+                images.append(image)
+                masks.append(mask)
+                file_paths.append(str(image_path))
+                image_count += 1
+            except Exception as e:
+                print(f"Error loading image {image_path}: {e}")
+
+        if not images:
+            raise ValueError("No valid images found in the directory.")
+
+        return (images, masks, file_paths)
+    
+from torchvision.transforms import InterpolationMode
+import torch.nn.functional as F
+from comfy.utils import common_upscale
+
+class PDIMAGE_LongerSize:
+    """
+    Resizes an image by scaling the longer side to the specified size while maintaining aspect ratio.
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "size": ("INT", {
+                    "default": 512, 
+                    "min": 1,  # Changed from 0 to 1 since size 0 doesn't make sense
+                    "max": 99999, 
+                    "step": 1
+                }),
+                "interpolation": (["nearest", "bilinear", "bicubic", "area", "nearest-exact"], {
+                    "default": "bicubic"
+                }),
+            },
+        }
+    
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "resize_longer_side"
+    CATEGORY = "image/transform"
+
+    def resize_longer_side(self, image: torch.Tensor, size: int, interpolation: str = "bicubic"):
+        if len(image.shape) != 4:
+            raise ValueError("Input image must be 4-dimensional (BxHxWxC)")
+            
+        _, h, w, _ = image.shape
+        
+        # Calculate new dimensions while maintaining aspect ratio
+        if h >= w:
+            new_h = size
+            new_w = int(w * (size / h))
+        else:
+            new_w = size
+            new_h = int(h * (size / w))
+        
+        # Convert to CHW format for upscaling
+        samples = image.movedim(-1, 1)
+        
+        # Map interpolation string to ComfyUI's method
+        if interpolation == "nearest-exact":
+            interpolation = "nearest_exact"
+            
+        samples = common_upscale(
+            samples, 
+            new_w, 
+            new_h, 
+            interpolation, 
+            False
+        )
+        
+        # Convert back to HWC format
+        image = samples.movedim(1, -1)
+        
+        return (image,)
+
+
+    
+    
 # 在 ComfyUI 中的节点映射配置
 NODE_CLASS_MAPPINGS = {
     "PD_Image_Crop_Location": PD_Image_Crop_Location,
     "PD_Image_centerCrop": PD_Image_centerCrop,
     "PD_GetImageSize": PD_GetImageSize, 
     "PD_ImageMergerWithText": ImageMergerWithText,   # 这个节点对应的类
+    "PDIMAGE_Rename": BatchImageRename,
+    "Load_Images": Load_Images,
+    "PDIMAGE_LongerSize": PDIMAGE_LongerSize
     
 }
 
@@ -345,4 +681,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "PD_Image_centerCrop": "PD:Image centerCrop",
     "PD_GetImageSize": "PD:GetImageSize", 
     "ImageMergerWithText": "Image Merger With Text",  # 更新显示名称
+    "PDIMAGE_Rename": "PDIMAGE:Rename",
+    "Load_Images": "PDIMAGE:Load_Images",
+    "PDIMAGE_LongerSize": "PDIMAGE:LongerSize",
+
 }
