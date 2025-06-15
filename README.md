@@ -8,7 +8,7 @@
 
 ### 安装插件
 * 推荐使用 ComfyUI Manager 安装。
-* 或者在CompyUI插件目录(例如“CompyUI\custom_nodes\”)中打开cmd窗口，键入    
+* 或者在CompyUI插件目录(例如"CompyUI\custom_nodes\")中打开cmd窗口，键入    
 ```
 git clone 
 ```
@@ -19,6 +19,8 @@ git clone
 如果节点不能正常加载，或者使用中出现错误，请在ComfyUI终端窗口查看报错信息。以下是常见的错误及解决方法。
 
 ## 节点说明
+
+
 
 #### **JSON处理**
 ##### PDJSON_Group​
@@ -38,7 +40,7 @@ git clone
 > 两张图片合在一起，然后两个文字分别加上去，制作对比图使用。
 
 - image1+ ​​​​image2 ：尽量要求同样尺寸，如果不同，会自动等比例缩放对齐
-- text1 + text2   ：支持中文，需字体文件包含中文编码，可输入如"效果图“：“原图”之类
+- text1 + text2   ：支持中文，需字体文件包含中文编码，可输入如"效果图"："原图"之类
 - font_size​：小于20可能看不清，大于80可能超出画布
 - ​​padding_up​：文字​​上方​​的留白高度，10-30
 - ​​padding_down：文字​**​下方​**​的留白高度  10- 1000 ,可以往下扩多一些方便排版
@@ -64,3 +66,67 @@ load_always ： 设为True时，每次运行都强制重新加载（忽略缓存
 默认值: False
 
 输出为image，mask 和paths.
+
+workflow
+![批量反推工具V8.1](workflow/批量反推工具V8.1.png)
+
+### **PD:imageconcante_V1 节点说明**
+
+用于将两张图片按指定方向拼接，支持多种尺寸对齐和裁切方式。
+
+**参数说明：**
+- **image1**：输入图片1（必填）
+- **image2**：输入图片2（可选，不填时只输出image1）
+- **direction**：合并方向，可选 right（右拼接）、down（下拼接）、left（左拼接）、up（上拼接）
+- **match_size**：尺寸对齐方式
+  - `longest`：两张图片都按最长边等比缩放后合并，保持各自比例
+  - `crop by image1`：image2 先等比缩放到能覆盖image1，再以image1尺寸为基准进行裁切
+- **image2_crop**：当 match_size 选择 `crop by image1` 时，image2 的裁切方式
+  - `center`：居中裁切
+  - `top`：顶部裁切
+  - `bottom`：底部裁切
+  - `left`：左侧裁切
+  - `right`：右侧裁切
+
+**功能说明：**
+- 支持自动对齐图片批次（batch）和通道数。
+- 支持 image2 缺省时直接输出 image1。
+- 支持多种合并方向和尺寸对齐逻辑，满足对比、拼接等多种场景。
+
+**典型用法举例：**
+- 横向拼接两张不同尺寸图片，选择 `longest` 可自动等比缩放对齐高度。
+- 需要严格对齐image1尺寸时，选择 `crop by image1` 并设置裁切方式。
+
+### **PD:Image Blend V1 节点说明**
+
+用于将两张图片进行混合，支持多种混合模式、透明度控制和位置调整。
+
+**参数说明：**
+- **background_image**：背景图像（必填）
+- **layer_image**：图层图像（必填）
+- **blend_mode**：混合模式，支持以下选项：
+  - `normal`：正常混合
+  - `multiply`：正片叠底
+  - `screen`：滤色
+  - `overlay`：叠加
+  - `soft_light`：柔光
+  - `hard_light`：强光
+  - `color_dodge`：颜色减淡
+  - `color_burn`：颜色加深
+  - `darken`：变暗
+  - `lighten`：变亮
+  - `difference`：差值
+  - `exclusion`：排除
+- **opacity**：透明度（0-100）
+- **x_percent**：X轴位置百分比（50为居中）
+- **y_percent**：Y轴位置百分比（50为居中）
+- **scale**：缩放比例（0.01到10）
+- **align_mode**：对齐模式
+  - `default`：默认居中
+  - `top_align`：顶部对齐
+  - `bottom_align`：底部对齐
+  - `left_align`：左侧对齐
+  - `right_align`：右侧对齐
+- **layer_mask**：可选的图层遮罩
+- **invert_mask**：是否反转遮罩（默认False）
+---
