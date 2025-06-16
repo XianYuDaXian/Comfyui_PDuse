@@ -129,6 +129,7 @@ workflow
   - `right_align`：右侧对齐
 - **layer_mask**：可选的图层遮罩
 - **invert_mask**：是否反转遮罩（默认False）
+<<<<<<< HEAD
 ---
 
 PD:Image Rotate
@@ -146,3 +147,6 @@ bilinear：均衡
 bicubic：质量最好
 输出
 images：旋转后的图片
+=======
+---
+>>>>>>> 2bd70b0da2a8ac643f75f6f89a8bd938f22ed02f
